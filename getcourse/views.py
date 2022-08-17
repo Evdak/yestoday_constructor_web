@@ -20,6 +20,7 @@ from .services_getcourse import (
 
 from datetime import datetime
 from django.utils import timezone
+import re
 
 
 def add_to_dict_view(request: HttpRequest, user_id: int, audio_id: int):
@@ -47,8 +48,13 @@ def add_student_view(request: HttpRequest):
     teacher_id = request.GET.get('teacher_id')
     hours = request.GET.get('hours')
 
+    hours = [float(s) for s in re.findall(r'-?\d+\.?\d*', hours)][0]
+
+    if not surname:
+        surname = ' '
+
     if all((user_id, name, email, teacher_id, hours)):
-        if add_student(user_id, name, email, teacher_id, hours):
+        if add_student(user_id, name, surname, email, teacher_id, hours):
             return JsonResponse(
                 {
                     "status": "OK",
