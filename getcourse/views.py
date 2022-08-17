@@ -33,7 +33,14 @@ def add_student_view(request: HttpRequest):
     teacher_id = request.GET.get('teacher_id')
     hours = request.GET.get('hours')
 
-    hours = [float(s) for s in re.findall(r'-?\d+\.?\d*', hours)][0]
+    print(f"{hours=}")
+    s = []
+    for t in hours.split():
+        try:
+            s.append(float(t))
+        except ValueError:
+            pass
+    hours = s[0]
 
     if not surname:
         surname = ' '
