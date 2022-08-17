@@ -1,22 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpRequest, JsonResponse
-from .services_getcourse import (
-    add_audio_to_getcourse_user_dict,
-    delete_audio_from_getcourse_user_dict,
-    show_getcourse_user_dict,
-    get_audio_ids_from_getcourse_user_dict,
-    add_student,
-    book_lesson,
-    unbook_lesson,
-    book_lesson_teacher,
-    unbook_lesson_teacher,
-    get_lessons,
-    get_lessons_today,
-    get_lessons_teacher,
-    get_lessons_today_teacher,
-    get_available_lessons_teacher_by_student,
-    get_available_lessons_teacher
-)
+from .services_getcourse import add_audio_to_getcourse_user_dict, delete_audio_from_getcourse_user_dict, show_getcourse_user_dict, get_audio_ids_from_getcourse_user_dict, add_student, book_lesson, unbook_lesson, book_lesson_teacher, unbook_lesson_teacher, get_lessons, get_lessons_today, get_lessons_teacher, get_lessons_today_teacher, get_available_lessons_teacher_by_student, get_available_lessons_teacher
+
 
 from datetime import datetime
 from django.utils import timezone
