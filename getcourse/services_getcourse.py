@@ -249,14 +249,14 @@ def _unbook_lesson_teacher(teacher: GetCourseTeacher, lesson: Lesson) -> None:
     teacher.available_lessons.remove(lesson)
 
 
-def _get_lesson_from_teacher(date_time: datetime, teacher: GetCourseTeacher) -> Lesson | dict:
+def _get_lesson_from_teacher(date_time: datetime, teacher: GetCourseTeacher) -> Lesson:
 
     return teacher.available_lessons.get(
         date_time=date_time
     )
 
 
-def _get_lesson_from_student(date_time: datetime, student: GetCourseStudent) -> Lesson | dict:
+def _get_lesson_from_student(date_time: datetime, student: GetCourseStudent) -> Lesson:
 
     return student.lessons.get(
         date_time=date_time
