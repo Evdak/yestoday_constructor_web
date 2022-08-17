@@ -322,7 +322,7 @@ def _get_or_create_getcourse_student(
 
 def _get_getcourse_student(
     user_id: int,
-) -> GetCourseStudent | None:
+) -> GetCourseStudent:
     try:
         student = GetCourseStudent.objects.get(
             user__accountUserId=user_id
