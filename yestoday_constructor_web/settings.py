@@ -12,7 +12,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['Yestoday.pythonanywhere.com']
 
-CORS_ALLOW_ALL_ORIGINS=True
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 INSTALLED_APPS = [

@@ -1,10 +1,12 @@
-from .models import Audio, GetCourseUser
+from datetime import datetime
+from .models import Audio, GetCourseUser, GetCourseStudent, GetCourseTeacher, Lesson
+from django.utils import timezone
 
 
 def add_audio_to_getcourse_user_dict(user_id: int, audio_id: int):
     audio = _get_audio(audio_id)
     if audio:
-        _get_getcourse_user(user_id).audios.add(audio)
+        _get_or_create_getcourse_user(user_id).audios.add(audio)
         return True
     return False
 
@@ -12,24 +14,345 @@ def add_audio_to_getcourse_user_dict(user_id: int, audio_id: int):
 def delete_audio_from_getcourse_user_dict(user_id: int, audio_id: int):
     audio = _get_audio(audio_id)
     if audio:
-        _get_getcourse_user(user_id).audios.remove(audio)
+        _get_or_create_getcourse_user(user_id).audios.remove(audio)
         return True
     return False
 
 
 def get_audio_ids_from_getcourse_user_dict(user_id: int):
-    return [el.id for el in _get_getcourse_user(user_id).audios.all()]
+    return [el.id for el in _get_or_create_getcourse_user(user_id).audios.all()]
 
 
 def show_getcourse_user_dict(user_id: int):
-    return "\n".join([el.to_html() for el in _get_getcourse_user(user_id).audios.all()])
+    return "\n".join([el.to_html() for el in _get_or_create_getcourse_user(user_id).audios.all()])
 
 
-def _get_getcourse_user(user_id: int):
-    user: GetCourseUser
+def add_student(
+    user_id: int,
+    name: str,
+    surname: str,
+    email: str,
+    teacher_id: int,
+    hours: float
+) -> bool:
+    user = _get_or_create_getcourse_user(user_id)
+    teacher = _get_getcourse_teacher(teacher_id)
+
+    if not teacher:
+        return False
+
+    return bool(
+        _get_or_create_getcourse_student(
+            user,
+            teacher,
+            name=name,
+            surname=surname,
+            email=email,
+            hours=hours
+        )
+    )
+
+
+def book_lesson(
+    user_id: int,
+    date_time: datetime
+) -> dict:
+    if date_time <= timezone.now():
+        return {"status": "ERROR", "msg": "Нельзя записаться на прошедшее время"}
+    student = _get_getcourse_student(user_id=user_id)
+    if not student:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    if not _student_has_payed_hours(student):
+        return {"status": "ERROR", "msg": "У вас больше нет доступных уроков"}
+
+    if _student_booked_more_than_four_lessons_per_day(student, date_time):
+        return {"status": "ERROR", "msg": "Доступно не более 4 записей в день"}
+
+    if _student_has_lesson_at_this_time(date_time, student):
+        return {"status": "ERROR", "msg": "Уже есть запись на это время"}
+
+    try:
+        lesson = _get_lesson_from_teacher(date_time, student.teacher)
+    except Lesson.DoesNotExist:
+        return {"status": "ERROR", "msg": "Выбранное время недоступно для бронирования"}
+
+    _book_lesson(student, lesson)
+
+    return {"status": "OK", "msg": "Урок забронирован"}
+
+
+def unbook_lesson(
+    user_id: int,
+    date_time: datetime
+) -> dict:
+    if date_time - timezone.timedelta(hours=24) <= timezone.now():
+        return {"status": "ERROR", "msg": "Нельзя отменить урок менее, чем за 24 часа"}
+    student = _get_getcourse_student(user_id=user_id)
+    if not student:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    try:
+        lesson = _get_lesson_from_student(date_time, student)
+    except Lesson.DoesNotExist:
+        return {"status": "ERROR", "msg": "У вас нет забронированного урока в это время"}
+
+    _unbook_lesson(student, lesson)
+
+    return {"status": "OK", "msg": "Бронь отменена"}
+
+
+def book_lesson_teacher(
+    user_id: int,
+    date_time: datetime
+) -> dict:
+    if date_time <= timezone.now():
+        return {"status": "ERROR", "msg": "Нельзя создать урок на прошедшее время"}
+    teacher = _get_getcourse_teacher(teacher_id=user_id)
+    if not teacher:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    lesson = _get_or_create_lesson(date_time=date_time)
+
+    _book_lesson_teacher(teacher=teacher, lesson=lesson)
+
+    return {"status": "OK", "msg": "Урок создан"}
+
+
+def unbook_lesson_teacher(
+    user_id: int,
+    date_time: datetime
+) -> dict:
+    if date_time <= timezone.now():
+        return {"status": "ERROR", "msg": "Нельзя отменить урок на прошедшее время"}
+    teacher = _get_getcourse_teacher(teacher_id=user_id)
+    if not teacher:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    if _any_student_has_lesson_at_this_time(date_time, teacher):
+        return {"status": "ERROR", "msg": "Ученик уже записан на это время"}
+
+    try:
+        lesson = _get_lesson_from_teacher(date_time, teacher)
+    except Lesson.DoesNotExist:
+        return {"status": "ERROR", "msg": "У вас нет забронированного урока в это время"}
+
+    _unbook_lesson_teacher(teacher, lesson)
+
+    return {"status": "OK", "msg": "Урок отменен"}
+
+
+def get_lessons(user_id: int) -> list:
+    student = _get_getcourse_student(user_id)
+    if not student:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    return {"status": "OK", "result": student.get_lessons_list()}
+
+
+def get_lessons_today(user_id: int, date_time: datetime) -> list:
+    student = _get_getcourse_student(user_id)
+
+    if not student:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    return {"status": "OK", "result": student.get_lessons_list_for_date_time(date_time=date_time)}
+
+
+def get_available_lessons_teacher_by_student(user_id: int) -> list:
+    student = _get_getcourse_student(user_id)
+    if not student:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+    response = _get_available_lessons_teacher(student.teacher.accountUserId)
+    if response.get('status') != 'OK':
+        return {"status": "ERROR", "msg": "Произошла ошибка"}
+
+    return response
+
+
+def get_available_lessons_teacher(user_id: int) -> list:
+    teacher = _get_getcourse_teacher(user_id)
+    if not teacher:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+    response = _get_available_lessons_teacher(teacher.accountUserId)
+    if response.get('status') != 'OK':
+        return {"status": "ERROR", "msg": "Произошла ошибка"}
+
+    return response
+
+
+def get_lessons_teacher(user_id: int) -> list:
+    teacher = _get_getcourse_teacher(user_id)
+    if not teacher:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    return {
+        "status": "OK",
+        "result":
+            [
+                {
+                    'student': str(st),
+                    'lessons': st.get_lessons_list()
+                } for st in _get_students_of_teacher(teacher=teacher)
+            ]
+    }
+
+
+def get_lessons_today_teacher(user_id: int, date_time: datetime) -> list:
+    teacher = _get_getcourse_teacher(user_id)
+    if not teacher:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    return {
+        "status": "OK",
+        "result":
+            [
+                {
+                    'student': str(st),
+                    'lessons': st.get_lessons_list_for_date_time(date_time)
+                } for st in _get_students_of_teacher(teacher=teacher)
+            ]
+    }
+
+
+def _get_available_lessons_teacher(user_id: int) -> list:
+    teacher = _get_getcourse_teacher(user_id)
+    if not teacher:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    return {"status": "OK", "result": [str(el) for el in teacher.available_lessons.all()]}
+
+
+def _get_students_of_teacher(teacher: GetCourseTeacher) -> list:
+    return GetCourseStudent.objects.filter(teacher=teacher)
+
+
+def _book_lesson(student: GetCourseStudent, lesson: Lesson) -> None:
+    student.teacher.available_lessons.remove(lesson)
+    student.lessons.add(lesson)
+    student.hours -= 0.5
+    student.save()
+
+
+def _unbook_lesson(student: GetCourseStudent, lesson: Lesson) -> None:
+    student.teacher.available_lessons.add(lesson)
+    student.lessons.remove(lesson)
+    student.hours += 0.5
+    student.save()
+
+
+def _book_lesson_teacher(teacher: GetCourseTeacher, lesson: Lesson) -> None:
+    teacher.available_lessons.add(lesson)
+
+
+def _unbook_lesson_teacher(teacher: GetCourseTeacher, lesson: Lesson) -> None:
+    teacher.available_lessons.remove(lesson)
+
+
+def _get_lesson_from_teacher(date_time: datetime, teacher: GetCourseTeacher) -> Lesson | dict:
+
+    return teacher.available_lessons.get(
+        date_time=date_time
+    )
+
+
+def _get_lesson_from_student(date_time: datetime, student: GetCourseStudent) -> Lesson | dict:
+
+    return student.lessons.get(
+        date_time=date_time
+    )
+
+
+def _student_has_lesson_at_this_time(
+        date_time: datetime,
+        student: GetCourseStudent
+) -> bool:
+
+    return student.lessons.check(
+        date_time=date_time
+    )
+
+
+def _any_student_has_lesson_at_this_time(
+        date_time: datetime,
+        teacher: GetCourseTeacher
+) -> bool:
+
+    return any(
+        [
+            _student_has_lesson_at_this_time(date_time=date_time, student=st) for st in GetCourseStudent.objects.filter(
+                teacher=teacher,
+            )
+        ]
+    )
+
+
+def _student_has_payed_hours(
+    student: GetCourseStudent
+) -> bool:
+    return student.hours > 0
+
+
+def _student_booked_more_than_four_lessons_per_day(
+    student: GetCourseStudent,
+    date_time: datetime
+) -> bool:
+    return student.lessons.filter(
+        date_time__date=date_time.date()
+    ).count() >= 4
+
+
+def _get_or_create_getcourse_student(
+        user: GetCourseUser,
+        teacher: GetCourseTeacher = None,
+        name: str = None,
+        surname: str = None,
+        email: str = None,
+        hours: float = 0) -> GetCourseStudent:
+    student, created = GetCourseStudent.objects.get_or_create(
+        user=user,
+        teacher=teacher,
+        name=name,
+        surname=surname,
+        email=email,
+        hours=hours
+    )
+    return student
+
+
+def _get_getcourse_student(
+    user_id: int,
+) -> GetCourseStudent | None:
+    try:
+        student = GetCourseStudent.objects.get(
+            user__accountUserId=user_id
+        )
+    except GetCourseStudent.DoesNotExist:
+        return None
+
+    return student
+
+
+def _get_getcourse_teacher(teacher_id: int) -> GetCourseTeacher:
+    try:
+        teacher = GetCourseTeacher.objects.get(
+            accountUserId=teacher_id
+        )
+    except GetCourseTeacher.DoesNotExist:
+        return None
+
+    return teacher
+
+
+def _get_or_create_getcourse_user(user_id: int) -> GetCourseUser:
     user, created = GetCourseUser.objects.get_or_create(accountUserId=user_id)
     return user
 
 
-def _get_audio(audio_id: int):
+def _get_or_create_lesson(date_time: datetime) -> Lesson:
+    lesson, created = Lesson.objects.get_or_create(date_time=date_time)
+    return lesson
+
+
+def _get_audio(audio_id: int) -> list:
     return Audio.objects.get(pk=audio_id)

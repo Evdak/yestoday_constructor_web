@@ -1,7 +1,13 @@
+from datetime import datetime
 from django.db import models
 from django.core.files.base import ContentFile
 from yestoday_constructor_web.settings import ALLOWED_HOSTS
 import requests
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+
+
+User = get_user_model()
 
 
 class Audio(models.Model):
@@ -80,6 +86,39 @@ class Audio(models.Model):
             """
 
 
+class Lesson(models.Model):
+    date_time = models.DateTimeField('Дата и время урока')
+
+    class Meta:
+        verbose_name = "Урок"
+        verbose_name_plural = "Уроки"
+
+    def __str__(self) -> str:
+        return str(self.date_time)
+
+
+class GetCourseTeacher(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Логин пользователя"
+    )
+    accountUserId = models.BigIntegerField('ID с GetCourse')
+
+    available_lessons = models.ManyToManyField(
+        Lesson,
+        verbose_name='Доступные уроки',
+        blank=True
+    )
+
+    class Meta:
+        verbose_name = "Учитель GetCourse"
+        verbose_name_plural = "Учителя GetCourse"
+
+    def __str__(self) -> str:
+        return f"{self.accountUserId} {self.user.first_name} {self.user.last_name}"
+
+
 class GetCourseUser(models.Model):
     accountUserId = models.BigIntegerField('ID с GetCourse')
     audios = models.ManyToManyField(
@@ -93,3 +132,69 @@ class GetCourseUser(models.Model):
 
     def get_audios(self):
         return "\n".join([str(p) for p in self.audios.all()])
+
+    def __str__(self) -> str:
+        return str(self.accountUserId)
+
+
+class GetCourseStudent(models.Model):
+    user = models.OneToOneField(
+        GetCourseUser,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь"
+    )
+
+    teacher = models.OneToOneField(
+        GetCourseTeacher,
+        on_delete=models.CASCADE,
+        verbose_name="Учитель",
+        blank=True,
+        null=True
+    )
+
+    lessons = models.ManyToManyField(
+        Lesson,
+        verbose_name='Уроки',
+        blank=True
+    )
+
+    hours = models.FloatField(
+        'Куплено часов',
+        blank=True,
+        null=True
+    )
+
+    name = models.CharField(
+        'Имя',
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    surname = models.CharField(
+        'Фамилия',
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    email = models.EmailField(
+        'Почта',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        verbose_name = "Ученик GetCourse"
+        verbose_name_plural = "Ученики GetCourse"
+
+    def get_lessons(self):
+        return "\n".join([str(p) for p in self.lessons.all()])
+
+    def get_lessons_list(self):
+        return [str(p) for p in self.lessons.all()]
+
+    def get_lessons_list_for_date_time(self, date_time: datetime):
+        return [str(p) for p in self.lessons.filter(date_time__date=date_time.date())]
+
+    def __str__(self) -> str:
+        return f"{self.user.__str__()} {self.name} {self.surname}"
