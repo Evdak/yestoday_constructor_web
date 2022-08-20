@@ -1,6 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpRequest, JsonResponse
-from .services_getcourse import add_audio_to_getcourse_user_dict, delete_audio_from_getcourse_user_dict, show_getcourse_user_dict, get_audio_ids_from_getcourse_user_dict, add_student, book_lesson, unbook_lesson, book_lesson_teacher, unbook_lesson_teacher, get_lessons, get_lessons_today, get_lessons_teacher, get_lessons_today_teacher, get_available_lessons_teacher_by_student, get_available_lessons_teacher
+from .services_getcourse import add_audio_to_getcourse_user_dict, delete_audio_from_getcourse_user_dict, show_getcourse_user_dict, get_audio_ids_from_getcourse_user_dict, add_student, book_lesson, unbook_lesson, book_lesson_teacher, unbook_lesson_teacher, get_lessons, get_lessons_today, get_lessons_teacher, get_lessons_today_teacher, get_available_lessons_teacher_by_student, get_available_lessons_teacher, get_info_for_student
 
 
 from datetime import datetime
@@ -238,6 +238,22 @@ def get_lessons_teacher_today_view(request: HttpRequest):
             date_time = date_time.replace(' ', '+')
             date_time = timezone.datetime.fromisoformat(date_time)
             return JsonResponse(get_lessons_today_teacher(user_id=user_id, date_time=date_time))
+        except Exception as err:
+            return JsonResponse(
+                {
+                    "status": "ERROR",
+                    "msg": "Неправильно введены данные",
+                    "err": str(err)
+                }
+            )
+
+
+@csrf_exempt
+def get_info_for_student_view(request: HttpRequest):
+    user_id = request.GET.get('user_id')
+    if user_id:
+        try:
+            return JsonResponse(get_info_for_student(user_id=user_id))
         except Exception as err:
             return JsonResponse(
                 {

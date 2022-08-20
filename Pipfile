@@ -8,6 +8,8 @@ django = "*"
 django-bootstrap5 = "*"
 requests = "*"
 python-dotenv = "*"
+pyjwt = "*"
+django-zoom-meetings = "*"
 
 [dev-packages]
 autopep8 = "*"

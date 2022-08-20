@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7e34f3ba9db9af11e012d67c27d2941293a758b108362459d0e85cdf8c719fed"
+            "sha256": "3d47dcc51134148e097818e2311290904bebe1eb0af64184227323924c8b6576"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -56,6 +56,14 @@
             "index": "pypi",
             "version": "==22.1"
         },
+        "django-zoom-meetings": {
+            "hashes": [
+                "sha256:9f4e61dd7f0a5ab134e23a6d78361e39d856cf5edc1ffb16747a4476f2fbdbed",
+                "sha256:a4b366c69393a6fedb2142e66eb515c84821b96d297c50613110b6a9f72d806a"
+            ],
+            "index": "pypi",
+            "version": "==0.1.0"
+        },
         "idna": {
             "hashes": [
                 "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff",
@@ -63,6 +71,14 @@
             ],
             "markers": "python_version >= '3.5'",
             "version": "==3.3"
+        },
+        "pyjwt": {
+            "hashes": [
+                "sha256:72d1d253f32dbd4f5c88eaf1fdc62f3a19f676ccbadb9dbc5d07e951b2b26daf",
+                "sha256:d42908208c699b3b973cbeb01a969ba6a96c821eefb1c5bfe4c390c01d67abba"
+            ],
+            "index": "pypi",
+            "version": "==2.4.0"
         },
         "python-dotenv": {
             "hashes": [

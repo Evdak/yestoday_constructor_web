@@ -31,6 +31,18 @@ class FilterLesson(admin.ModelAdmin):
     )
 
 
+@admin.register(LessonBooked)
+class FilterLessonBooked(admin.ModelAdmin):
+    list_display = (
+        "date_time",
+        "teacher",
+        "student",
+        "zoom_id",
+        "zoom_url",
+        "zoom_password",
+    )
+
+
 @admin.register(GetCourseTeacher)
 class FilterGetCourseTeacher(admin.ModelAdmin):
     list_display = (
@@ -44,7 +56,7 @@ class FilterGetCourseStudent(admin.ModelAdmin):
     list_display = (
         "user",
         "teacher",
-        "get_lessons",
+        "hours",
         "name",
         "surname",
         "email",

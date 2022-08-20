@@ -1,6 +1,11 @@
 from datetime import datetime
-from .models import Audio, GetCourseUser, GetCourseStudent, GetCourseTeacher, Lesson
+import logging
+from .models import Audio, GetCourseUser, GetCourseStudent, GetCourseTeacher, Lesson, LessonBooked
 from django.utils import timezone
+
+from django_zoom_meetings import ZoomMeetings
+
+logger = logging.getLogger(__name__)
 
 
 def add_audio_to_getcourse_user_dict(user_id: int, audio_id: int):
@@ -77,17 +82,15 @@ def book_lesson(
     except Lesson.DoesNotExist:
         return {"status": "ERROR", "msg": "Выбранное время недоступно для бронирования"}
 
-    _book_lesson(student, lesson)
-
-    return {"status": "OK", "msg": "Урок забронирован"}
+    return _book_lesson(student, lesson)
 
 
 def unbook_lesson(
     user_id: int,
     date_time: datetime
 ) -> dict:
-    if date_time - timezone.timedelta(hours=24) <= timezone.now():
-        return {"status": "ERROR", "msg": "Нельзя отменить урок менее, чем за 24 часа"}
+    if date_time - timezone.timedelta(hours=12) <= timezone.now():
+        return {"status": "ERROR", "msg": "Нельзя отменить урок менее, чем за 12 часов"}
     student = _get_getcourse_student(user_id=user_id)
     if not student:
         return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
@@ -97,9 +100,7 @@ def unbook_lesson(
     except Lesson.DoesNotExist:
         return {"status": "ERROR", "msg": "У вас нет забронированного урока в это время"}
 
-    _unbook_lesson(student, lesson)
-
-    return {"status": "OK", "msg": "Бронь отменена"}
+    return _unbook_lesson(student, lesson)
 
 
 def book_lesson_teacher(
@@ -215,6 +216,19 @@ def get_lessons_today_teacher(user_id: int, date_time: datetime) -> list:
     }
 
 
+def get_info_for_student(user_id: int) -> dict:
+    student = _get_getcourse_student(user_id=user_id)
+    if not student:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    return {
+        'status': 'OK',
+        'hours': student.hours,
+        'teacherName': student.teacher.user.first_name + ' ' + student.teacher.user.last_name,
+        'teacherPhoto': student.teacher.photo,
+    }
+
+
 def _get_available_lessons_teacher(user_id: int) -> list:
     teacher = _get_getcourse_teacher(user_id)
     if not teacher:
@@ -228,17 +242,86 @@ def _get_students_of_teacher(teacher: GetCourseTeacher) -> list:
 
 
 def _book_lesson(student: GetCourseStudent, lesson: Lesson) -> None:
-    student.teacher.available_lessons.remove(lesson)
-    student.lessons.add(lesson)
-    student.hours -= 0.5
-    student.save()
+
+    response = _create_meeting(student, lesson)
+    if response['status'] != 'OK':
+        return response
+
+    meeting = response['meeting']
+
+    try:
+        student.teacher.available_lessons.remove(lesson)
+        student.lessons.create(
+            date_time=lesson.date_time,
+            teacher=student.teacher,
+            student=student,
+            zoom_url=meeting['join_url'],
+            zoom_password=meeting['password'],
+            zoom_id=meeting['id']
+        )
+        student.hours -= 0.5
+        student.save()
+    except Exception as err:
+        logger.error(err)
+        return {"status": "ERROR", "msg": "Произошла ошибка, попробуйте еще раз или обратитесь в поддержку"}
+
+    return {"status": "OK", "msg": "Урок забронирован"}
 
 
-def _unbook_lesson(student: GetCourseStudent, lesson: Lesson) -> None:
-    student.teacher.available_lessons.add(lesson)
-    student.lessons.remove(lesson)
-    student.hours += 0.5
-    student.save()
+def _unbook_lesson(student: GetCourseStudent, lesson: LessonBooked) -> None:
+    meeting = _delete_meeting(student, lesson)
+    if meeting['status'] != 'OK':
+        return meeting
+
+    try:
+        student.teacher.available_lessons.add(
+            Lesson.objects.get_or_create(
+                date_time=lesson.date_time
+            )[0]
+        )
+        student.lessons.get(date_time=lesson.date_time).delete()
+        student.hours += 0.5
+        student.save()
+    except Exception as err:
+        return {"status": "ERROR", "msg": "Произошла ошибка, попробуйте еще раз или обратитесь в поддержку"}
+
+    return {"status": "OK", "msg": "Бронь отменена"}
+
+
+def _create_meeting(student: GetCourseStudent, lesson: Lesson):
+    try:
+        my_zoom = ZoomMeetings(
+            student.teacher.zoom_key,
+            student.teacher.zoom_sec,
+            student.teacher.zoom_email
+        )
+        meeting = my_zoom.CreateMeeting(
+            date=lesson.date_time,
+            topic=f"Урок с {student.name} {student.surname}",
+            meeting_duration=30,
+            meeting_password=student.user.accountUserId
+        )
+    except Exception as err:
+        logger.error(err)
+        return {'status': 'ERROR', 'msg': 'Не удалось создать встречу Zoom'}
+
+    return {'status': 'OK', 'meeting': meeting}
+
+
+def _delete_meeting(student: GetCourseStudent, lesson: LessonBooked):
+    try:
+        my_zoom = ZoomMeetings(
+            student.teacher.zoom_key,
+            student.teacher.zoom_sec,
+            student.teacher.zoom_email
+        )
+        my_zoom.DeletMeeting(
+            lesson.zoom_id
+        )
+    except Exception as err:
+        logger.error(err)
+        return {'status': 'ERROR', 'msg': 'Не удалось удалить встречу Zoom'}
+    return {'status': 'OK'}
 
 
 def _book_lesson_teacher(teacher: GetCourseTeacher, lesson: Lesson) -> None:

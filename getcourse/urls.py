@@ -31,5 +31,7 @@ urlpatterns = [
     path('get_lessons_teacher',
          views.get_lessons_teacher_view, name='get_lessons_teacher_view'),
     path('get_lessons_teacher_today',
-         views.get_lessons_teacher_today_view, name='get_lessons_teacher_today_view')
+         views.get_lessons_teacher_today_view, name='get_lessons_teacher_today_view'),
+    path('get_info_for_student',
+         views.get_info_for_student_view, name='get_info_for_student_view')
 ]

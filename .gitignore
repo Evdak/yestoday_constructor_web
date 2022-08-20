@@ -5,3 +5,5 @@
 media/audio/
 
 .env
+
+getcourse/migrations/

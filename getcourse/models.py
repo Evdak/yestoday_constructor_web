@@ -111,6 +111,15 @@ class GetCourseTeacher(models.Model):
         blank=True
     )
 
+    photo = models.URLField(
+        'Фото профиля',
+        default='https://myyestoday.ru/public/img/default_profile_50.png'
+    )
+
+    zoom_key = models.CharField('Ключ Zoom', max_length=255)
+    zoom_sec = models.CharField('Секретный ключ Zoom', max_length=255)
+    zoom_email = models.EmailField('Почта Zoom')
+
     class Meta:
         verbose_name = "Учитель GetCourse"
         verbose_name_plural = "Учителя GetCourse"
@@ -152,11 +161,11 @@ class GetCourseStudent(models.Model):
         null=True
     )
 
-    lessons = models.ManyToManyField(
-        Lesson,
-        verbose_name='Уроки',
-        blank=True
-    )
+    # lessons = models.ManyToManyField(
+    #     LessonBooked,
+    #     verbose_name='Уроки',
+    #     blank=True
+    # )
 
     hours = models.FloatField(
         'Куплено часов',
@@ -191,10 +200,54 @@ class GetCourseStudent(models.Model):
         return "\n".join([str(p) for p in self.lessons.all()])
 
     def get_lessons_list(self):
-        return [str(p) for p in self.lessons.all()]
+        return [
+            {
+                "date": str(p),
+                "url": p.zoom_url
+            }
+            for p in self.lessons.all()
+        ]
 
     def get_lessons_list_for_date_time(self, date_time: datetime):
         return [str(p) for p in self.lessons.filter(date_time__date=date_time.date())]
 
     def __str__(self) -> str:
         return f"{self.user.__str__()} {self.name} {self.surname}"
+
+
+class LessonBooked(models.Model):
+    date_time = models.DateTimeField('Дата и время урока')
+    teacher = models.ForeignKey(
+        GetCourseTeacher,
+        verbose_name='Учитель',
+        on_delete=models.CASCADE,
+        related_name='lessons'
+    )
+
+    student = models.ForeignKey(
+        GetCourseStudent,
+        verbose_name='Ученик',
+        on_delete=models.CASCADE,
+        related_name='lessons'
+    )
+
+    zoom_id = models.CharField(
+        'ID встречи',
+        blank=True,
+        null=True,
+        max_length=50
+    )
+    zoom_url = models.URLField('Ссылка на встречу', blank=True, null=True)
+    zoom_password = models.CharField(
+        'Пароль встречи',
+        max_length=20,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        verbose_name = "Урок забронированный"
+        verbose_name_plural = "Уроки забронированные"
+
+    def __str__(self) -> str:
+        return str(self.date_time)
