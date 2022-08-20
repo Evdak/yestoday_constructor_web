@@ -153,7 +153,7 @@ class GetCourseStudent(models.Model):
         verbose_name="Пользователь"
     )
 
-    teacher = models.OneToOneField(
+    teacher = models.ForeignKey(
         GetCourseTeacher,
         on_delete=models.CASCADE,
         verbose_name="Учитель",
