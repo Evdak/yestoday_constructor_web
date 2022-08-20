@@ -295,6 +295,7 @@ def _create_meeting(student: GetCourseStudent, lesson: Lesson):
             student.teacher.zoom_sec,
             student.teacher.zoom_email
         )
+        my_zoom.request_token = str(my_zoom.request_token)
         meeting = my_zoom.CreateMeeting(
             date=lesson.date_time,
             topic=f"Урок с {student.name} {student.surname}",
@@ -303,7 +304,8 @@ def _create_meeting(student: GetCourseStudent, lesson: Lesson):
         )
     except Exception as err:
         logger.error(err)
-        return {'status': 'ERROR', 'msg': 'Не удалось создать встречу Zoom'}
+        raise err
+    return {'status': 'ERROR', 'msg': 'Не удалось создать встречу Zoom'}
 
     return {'status': 'OK', 'meeting': meeting}
 
