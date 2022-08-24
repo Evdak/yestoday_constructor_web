@@ -1,7 +1,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpRequest, JsonResponse
-from .services_getcourse import add_audio_to_getcourse_user_dict, delete_audio_from_getcourse_user_dict, show_getcourse_user_dict, get_audio_ids_from_getcourse_user_dict, add_student, book_lesson, unbook_lesson, book_lesson_teacher, unbook_lesson_teacher, get_lessons, get_lessons_today, get_lessons_teacher, get_lessons_today_teacher, get_available_lessons_teacher_by_student, get_available_lessons_teacher, get_info_for_student
+from .services_getcourse import add_audio_to_getcourse_user_dict, add_notifications_to_student, delete_audio_from_getcourse_user_dict, show_getcourse_user_dict, get_audio_ids_from_getcourse_user_dict, add_student, book_lesson, unbook_lesson, book_lesson_teacher, unbook_lesson_teacher, get_lessons, get_lessons_today, get_lessons_teacher, get_lessons_today_teacher, get_available_lessons_teacher_by_student, get_available_lessons_teacher, get_info_for_student
 
+from .tasks import send_notifications
 
 from datetime import datetime
 from django.utils import timezone
@@ -262,3 +263,32 @@ def get_info_for_student_view(request: HttpRequest):
                     "err": str(err)
                 }
             )
+
+
+def send_notifications_view(requset: HttpRequest):
+    send_notifications()
+    return JsonResponse({"status": "OK"})
+
+
+def add_notifications_view(request: HttpRequest):
+    user_id = request.GET.get('getcourse_id')
+    telegram_client_id = request.GET.get('client_id')
+
+    if all([user_id, telegram_client_id]):
+        try:
+            return JsonResponse(add_notifications_to_student(user_id, telegram_client_id))
+        except Exception as err:
+            return JsonResponse(
+                {
+                    "status": "ERROR",
+                    "msg": "Произошла ошибка, попробуйте еще раз или обратитесь в поддержку",
+                }
+            )
+
+    else:
+        return JsonResponse(
+            {
+                "status": "ERROR",
+                "msg": "Неправильно введены данные, попробуйте еще раз"
+            }
+        )

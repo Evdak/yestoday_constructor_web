@@ -192,6 +192,13 @@ class GetCourseStudent(models.Model):
         null=True
     )
 
+    telegram_client_id = models.CharField(
+        "ID Salebot",
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
     class Meta:
         verbose_name = "Ученик GetCourse"
         verbose_name_plural = "Ученики GetCourse"

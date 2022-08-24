@@ -229,6 +229,15 @@ def get_info_for_student(user_id: int) -> dict:
     }
 
 
+def add_notifications_to_student(user_id, telegram_client_id) -> dict:
+    student = _get_getcourse_student(user_id=user_id)
+    if not student:
+        return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
+
+    student.telegram_client_id = telegram_client_id
+    return {"status": "OK", "msg": "Отлично, теперь вы будете получать уведомления об уроках"}
+
+
 def _get_available_lessons_teacher(user_id: int) -> list:
     teacher = _get_getcourse_teacher(user_id)
     if not teacher:
@@ -295,7 +304,10 @@ def _create_meeting(student: GetCourseStudent, lesson: Lesson):
             student.teacher.zoom_sec,
             student.teacher.zoom_email
         )
-        my_zoom.request_token = str(my_zoom.request_token)
+        try:
+            my_zoom.request_token = my_zoom.request_token.decode('utf-8')
+        except AttributeError:
+            pass
         meeting = my_zoom.CreateMeeting(
             date=lesson.date_time,
             topic=f"Урок с {student.name} {student.surname}",
@@ -304,8 +316,7 @@ def _create_meeting(student: GetCourseStudent, lesson: Lesson):
         )
     except Exception as err:
         logger.error(err)
-        raise err
-    return {'status': 'ERROR', 'msg': 'Не удалось создать встречу Zoom'}
+        return {'status': 'ERROR', 'msg': 'Не удалось создать встречу Zoom'}
 
     return {'status': 'OK', 'meeting': meeting}
 
@@ -317,6 +328,10 @@ def _delete_meeting(student: GetCourseStudent, lesson: LessonBooked):
             student.teacher.zoom_sec,
             student.teacher.zoom_email
         )
+        try:
+            my_zoom.request_token = my_zoom.request_token.decode('utf-8')
+        except AttributeError:
+            pass
         my_zoom.DeletMeeting(
             lesson.zoom_id
         )

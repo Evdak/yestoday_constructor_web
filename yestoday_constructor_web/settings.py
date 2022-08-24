@@ -7,6 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 SECRET_KEY = os.getenv('DJANGO_SECRET', '123')
+SALEBOT_API_KEY = os.getenv('SALEBOT_API_KEY')
 
 DEBUG = False
 

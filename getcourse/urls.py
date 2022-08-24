@@ -33,5 +33,9 @@ urlpatterns = [
     path('get_lessons_teacher_today',
          views.get_lessons_teacher_today_view, name='get_lessons_teacher_today_view'),
     path('get_info_for_student',
-         views.get_info_for_student_view, name='get_info_for_student_view')
+         views.get_info_for_student_view, name='get_info_for_student_view'),
+    path('send_notifications',
+         views.send_notifications_view, name='send_notifications_view'),
+    path('add_notifications',
+         views.add_notifications_view, name='add_notifications_view'),
 ]
