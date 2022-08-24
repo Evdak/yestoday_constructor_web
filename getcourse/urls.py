@@ -38,4 +38,6 @@ urlpatterns = [
          views.send_notifications_view, name='send_notifications_view'),
     path('add_notifications/<str:getcourse_id>/<str:client_id>',
          views.add_notifications_view, name='add_notifications_view'),
+    path('delete_previous_zoom_meetings',
+         views.delete_previous_zoom_meetings_view, name='delete_previous_zoom_meetings_view'),
 ]

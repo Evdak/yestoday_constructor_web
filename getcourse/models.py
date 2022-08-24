@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any, Dict, Tuple
 from django.db import models
 from django.core.files.base import ContentFile
 from yestoday_constructor_web.settings import ALLOWED_HOSTS
@@ -258,3 +259,9 @@ class LessonBooked(models.Model):
 
     def __str__(self) -> str:
         return str(self.date_time)
+
+    def delete(self, using: Any = ..., keep_parents: bool = ...) -> Tuple[int, Dict[str, int]]:
+        self.student.hours += 0.5
+        self.student.save()
+
+        return super().delete(using, keep_parents)

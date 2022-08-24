@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpRequest, JsonResponse
 from .services_getcourse import add_audio_to_getcourse_user_dict, add_notifications_to_student, delete_audio_from_getcourse_user_dict, show_getcourse_user_dict, get_audio_ids_from_getcourse_user_dict, add_student, book_lesson, unbook_lesson, book_lesson_teacher, unbook_lesson_teacher, get_lessons, get_lessons_today, get_lessons_teacher, get_lessons_today_teacher, get_available_lessons_teacher_by_student, get_available_lessons_teacher, get_info_for_student
 
-from .tasks import send_notifications
+from .tasks import send_notifications, delete_previous_zoom_meetings
 
 from datetime import datetime
 from django.utils import timezone
@@ -34,14 +34,13 @@ def add_student_view(request: HttpRequest):
     teacher_id = request.GET.get('teacher_id')
     hours = request.GET.get('hours')
 
-    print(f"{hours=}")
     s = []
     for t in hours.split():
         try:
             s.append(float(t))
         except ValueError:
             pass
-    hours = s[0]
+    hours = sum(s)
 
     if not surname:
         surname = ' '
@@ -74,7 +73,6 @@ def add_student_view(request: HttpRequest):
 def book_lesson_view(request: HttpRequest):
     user_id = request.GET.get('user_id')
     date_time = request.GET.get('date_time')
-    print(f'{request.META=}')
 
     if all((user_id, date_time)):
         try:
@@ -292,3 +290,9 @@ def add_notifications_view(request: HttpRequest, getcourse_id: str, client_id: s
                 "msg": "Неправильно введены данные, попробуйте еще раз"
             }
         )
+
+
+@csrf_exempt
+def delete_previous_zoom_meetings_view(request: HttpRequest):
+    delete_previous_zoom_meetings()
+    return JsonResponse({"status": "OK"})

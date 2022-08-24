@@ -124,8 +124,9 @@ def unbook_lesson_teacher(
     user_id: int,
     date_time: datetime
 ) -> dict:
-    if date_time <= timezone.now():
-        return {"status": "ERROR", "msg": "Нельзя отменить урок на прошедшее время"}
+    if date_time <= timezone.now() + timezone.timedelta(days=7):
+        return {"status": "ERROR", "msg": "Нельзя отменять уроки на ближайшие 7 дней"}
+
     teacher = _get_getcourse_teacher(teacher_id=user_id)
     if not teacher:
         return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
@@ -226,6 +227,7 @@ def get_info_for_student(user_id: int) -> dict:
         'hours': student.hours,
         'teacherName': student.teacher.user.first_name + ' ' + student.teacher.user.last_name,
         'teacherPhoto': student.teacher.photo,
+        'isSub': bool(student.telegram_client_id),
     }
 
 
@@ -235,6 +237,9 @@ def add_notifications_to_student(user_id, telegram_client_id) -> dict:
         return {"status": "ERROR", "msg": "Вы не зарегестрированы в системе"}
 
     student.telegram_client_id = telegram_client_id
+
+    student.save()
+
     return {"status": "OK", "msg": "Отлично, теперь вы будете получать уведомления об уроках"}
 
 
