@@ -265,18 +265,18 @@ def get_info_for_student_view(request: HttpRequest):
             )
 
 
+@csrf_exempt
 def send_notifications_view(requset: HttpRequest):
     send_notifications()
     return JsonResponse({"status": "OK"})
 
 
-def add_notifications_view(request: HttpRequest):
-    user_id = request.GET.get('getcourse_id')
-    telegram_client_id = request.GET.get('client_id')
+@csrf_exempt
+def add_notifications_view(request: HttpRequest, getcourse_id: str, client_id: str):
 
-    if all([user_id, telegram_client_id]):
+    if all([getcourse_id, client_id]):
         try:
-            return JsonResponse(add_notifications_to_student(user_id, telegram_client_id))
+            return JsonResponse(add_notifications_to_student(getcourse_id, client_id))
         except Exception as err:
             return JsonResponse(
                 {

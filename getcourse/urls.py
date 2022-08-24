@@ -36,6 +36,6 @@ urlpatterns = [
          views.get_info_for_student_view, name='get_info_for_student_view'),
     path('send_notifications',
          views.send_notifications_view, name='send_notifications_view'),
-    path('add_notifications',
+    path('add_notifications/<str:getcourse_id>/<str:client_id>',
          views.add_notifications_view, name='add_notifications_view'),
 ]
