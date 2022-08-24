@@ -340,6 +340,10 @@ def _delete_meeting(student: GetCourseStudent, lesson: LessonBooked):
         my_zoom.DeletMeeting(
             lesson.zoom_id
         )
+        lesson.zoom_id = None
+        lesson.zoom_password = None
+        lesson.zoom_url = None
+        lesson.save()
     except Exception as err:
         logger.error(err)
         return {'status': 'ERROR', 'msg': 'Не удалось удалить встречу Zoom'}
