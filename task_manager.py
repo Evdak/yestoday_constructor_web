@@ -1,8 +1,7 @@
 import logging
-from time import time
+import time
 import requests
 from datetime import datetime, timedelta
-import time
 
 
 def main(now: datetime):
@@ -27,20 +26,22 @@ def main(now: datetime):
 
     elif now.minute > 30 and now.minute < 50:
         next_time = now.replace(minute=50, second=0, microsecond=0)
-
-    time.sleep(next_time - now)
+    time_to_sleep = (next_time - now).seconds
+    time.sleep(time_to_sleep)
+    logging.info('done')
     return main(datetime.now())
 
 
 if __name__ == '__main__':
     logging.basicConfig(
         format='%(asctime)s %(message)s',
-        filename='notifications.log',
+        # filename='notifications.log',
         encoding='utf-8',
         level=logging.INFO
     )
     now = datetime.now()
+    logging.info('started')
     try:
         main(now)
     except Exception as err:
-        logging.error(err)
+        logging.exception(err)

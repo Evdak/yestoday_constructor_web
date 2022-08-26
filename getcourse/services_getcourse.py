@@ -337,13 +337,14 @@ def _delete_meeting(student: GetCourseStudent, lesson: LessonBooked):
             my_zoom.request_token = my_zoom.request_token.decode('utf-8')
         except AttributeError:
             pass
-        my_zoom.DeletMeeting(
+        response = my_zoom.DeletMeeting(
             lesson.zoom_id
         )
-        lesson.zoom_id = None
-        lesson.zoom_password = None
-        lesson.zoom_url = None
-        lesson.save()
+        if response.status_code == 200:
+            lesson.zoom_id = None
+            lesson.zoom_password = None
+            lesson.zoom_url = None
+            lesson.save()
     except Exception as err:
         logger.error(err)
         return {'status': 'ERROR', 'msg': 'Не удалось удалить встречу Zoom'}
