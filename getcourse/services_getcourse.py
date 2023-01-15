@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 import logging
 from .models import Audio, GetCourseUser, GetCourseStudent, GetCourseTeacher, Lesson, LessonBooked
@@ -276,7 +277,7 @@ def _book_lesson(student: GetCourseStudent, lesson: Lesson) -> None:
         student.hours -= 0.5
         student.save()
     except Exception as err:
-        logger.error(err)
+        print(f'err -> {err}')
         return {"status": "ERROR", "msg": "Произошла ошибка, попробуйте еще раз или обратитесь в поддержку"}
 
     return {"status": "OK", "msg": "Урок забронирован"}
@@ -293,10 +294,10 @@ def _unbook_lesson(student: GetCourseStudent, lesson: LessonBooked) -> None:
                 date_time=lesson.date_time
             )[0]
         )
-        student.lessons.get(date_time=lesson.date_time).delete()
-        student.hours += 0.5
-        student.save()
+        student.lessons.filter(date_time=lesson.date_time).delete()
     except Exception as err:
+        print(f"err -> {err}")
+        traceback.print_exc()
         return {"status": "ERROR", "msg": "Произошла ошибка, попробуйте еще раз или обратитесь в поддержку"}
 
     return {"status": "OK", "msg": "Бронь отменена"}
@@ -320,7 +321,7 @@ def _create_meeting(student: GetCourseStudent, lesson: Lesson):
             meeting_password=student.user.accountUserId
         )
     except Exception as err:
-        logger.error(err)
+        print(f'err -> {err}')
         return {'status': 'ERROR', 'msg': 'Не удалось создать встречу Zoom'}
 
     return {'status': 'OK', 'meeting': meeting}
@@ -345,7 +346,7 @@ def _delete_meeting(student: GetCourseStudent, lesson: LessonBooked):
         lesson.zoom_url = None
         lesson.save()
     except Exception as err:
-        logger.error(err)
+        print(f'err -> {err}')
         return {'status': 'ERROR', 'msg': 'Не удалось удалить встречу Zoom'}
     return {'status': 'OK'}
 

@@ -6,6 +6,8 @@ from yestoday_constructor_web.settings import ALLOWED_HOSTS
 import requests
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 User = get_user_model()
@@ -260,8 +262,17 @@ class LessonBooked(models.Model):
     def __str__(self) -> str:
         return str(self.date_time)
 
-    def delete(self, using: Any = ..., keep_parents: bool = ...) -> Tuple[int, Dict[str, int]]:
-        self.student.hours += 0.5
-        self.student.save()
+    # def delete(self, using: Any = ..., keep_parents: bool = ...) -> Tuple[int, Dict[str, int]]:
+    #     print(f'1 {self.student.hours=}')
+    #     self.student.hours += 0.5
+    #     self.student.save()
+    #     print(f'2 {self.student.hours=}')
 
-        return super().delete(using, keep_parents)
+    #     return super().delete(using, keep_parents)
+
+
+@receiver(post_delete, sender=LessonBooked)
+def add_hours(sender, instance, **kwargs):
+    print(f"{sender=}")
+    instance.student.hours += 0.5
+    instance.student.save()

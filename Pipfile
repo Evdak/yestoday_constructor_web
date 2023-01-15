@@ -10,6 +10,9 @@ requests = "*"
 python-dotenv = "*"
 pyjwt = "*"
 django-zoom-meetings = "*"
+django-cors-headers = "*"
+django-cleanup = "*"
+gunicorn = "*"
 
 [dev-packages]
 autopep8 = "*"

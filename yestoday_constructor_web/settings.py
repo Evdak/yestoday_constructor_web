@@ -1,20 +1,21 @@
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-load_dotenv()
+# load_dotenv()
 SECRET_KEY = os.getenv('DJANGO_SECRET', '123')
 SALEBOT_API_KEY = os.getenv('SALEBOT_API_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['Yestoday.pythonanywhere.com']
-
+ALLOWED_HOSTS = ["constystd.ru", "ystd.online", "130.193.50.110", "127.0.0.1"]
+CORS_ORIGIN_ALLOW_ALL=True
 CORS_ALLOW_ALL_ORIGINS = True
-
+CSRF_COOKIE_SECURE = False
+CSRF_TRUSTED_ORIGINS = ["https://myyestoday.ru", "https://constystd.ru", "https://ystd.online","http://constystd.ru", "http://ystd.online"]
 
 INSTALLED_APPS = [
     'constructor',
@@ -33,8 +34,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'yestoday_constructor_web.middleware.RangesMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'yestoday_constructor_web.middleware.RangesMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -105,7 +106,7 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-MEDIA_ROOT = '/home/Yestoday/yestoday_constructor_web/media'
+MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
-STATIC_ROOT = '/home/Yestoday/yestoday_constructor_web/static'
+STATIC_ROOT = BASE_DIR / 'static'
 STATIC_URL = '/static/'
