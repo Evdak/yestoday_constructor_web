@@ -503,6 +503,6 @@ def delete_answers(user_id: int, quiz_ids: list[UUID]) -> list[dict]:
         quiz_id__in=quiz_ids,
     ).all()
 
-    [answer.users.delete(user) for answer in answers]
+    [answer.users.remove(user) for answer in answers]
 
     return True
