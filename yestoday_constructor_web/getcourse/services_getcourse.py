@@ -501,7 +501,7 @@ def delete_answers(user_id: int, quiz_ids: list[UUID]) -> list[dict]:
     answers = Answer.objects.filter(
         users__id__exact=user.id,
         quiz_id__in=quiz_ids,
-    ).delete()
+    ).all()
 
     [answer.users.delete(user) for answer in answers]
 
