@@ -2,7 +2,28 @@ import json
 import logging
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpRequest, JsonResponse
-from .services_getcourse import add_audio_to_getcourse_user_dict, add_notifications_to_student, delete_audio_from_getcourse_user_dict, get_answers, register_answer, show_getcourse_user_dict, get_audio_ids_from_getcourse_user_dict, add_student, book_lesson, unbook_lesson, book_lesson_teacher, unbook_lesson_teacher, get_lessons, get_lessons_today, get_lessons_teacher, get_lessons_today_teacher, get_available_lessons_teacher_by_student, get_available_lessons_teacher, get_info_for_student
+from .services_getcourse import (
+    add_audio_to_getcourse_user_dict,
+    add_notifications_to_student,
+    delete_audio_from_getcourse_user_dict,
+    get_answers,
+    delete_answers,
+    register_answer,
+    show_getcourse_user_dict,
+    get_audio_ids_from_getcourse_user_dict,
+    add_student,
+    book_lesson,
+    unbook_lesson,
+    book_lesson_teacher,
+    unbook_lesson_teacher,
+    get_lessons,
+    get_lessons_today,
+    get_lessons_teacher,
+    get_lessons_today_teacher,
+    get_available_lessons_teacher_by_student,
+    get_available_lessons_teacher,
+    get_info_for_student,
+)
 
 from .tasks import send_notifications, delete_previous_zoom_meetings
 
@@ -343,6 +364,34 @@ def get_answers_view(request: HttpRequest):
             return JsonResponse({
                 "status": "OK",
                 "answers": answers,
+            })
+        except Exception as err:
+            logging.error(err)
+
+    return JsonResponse(
+        {
+            "status": "ERROR",
+            "msg": "Произошла ошибка, попробуйте еще раз или обратитесь в поддержку",
+        }
+    )
+
+
+@csrf_exempt
+def delete_answers_view(request: HttpRequest):
+    user_id = request.POST.get('user_id')
+    quiz_ids = request.POST.get('quiz_ids')
+
+    try:
+        quiz_ids = quiz_ids.split(';;')
+    except:
+        quiz_ids = None
+
+    if all((quiz_ids, user_id)):
+        try:
+            answers = delete_answers(user_id=user_id, quiz_ids=quiz_ids)
+
+            return JsonResponse({
+                "status": "OK"
             })
         except Exception as err:
             logging.error(err)

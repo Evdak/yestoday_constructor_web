@@ -109,3 +109,4 @@ celerybeat-*
 *.sqlite3
 .DS_Store
 .gitignore
+/data

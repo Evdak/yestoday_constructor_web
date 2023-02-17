@@ -487,11 +487,22 @@ def register_answer(user_id: int, quiz_id: UUID, answer: dict):
 def get_answers(user_id: int, quiz_ids: list[UUID]) -> list[dict]:
     user = _get_or_create_getcourse_user(user_id)
 
-    result = []
-
     answers = Answer.objects.filter(
         users__id__exact=user.id,
         quiz_id__in=quiz_ids,
     ).all()
 
     return [{"quiz_id": answer.quiz_id, "answer": answer.answer} for answer in answers]
+
+
+def delete_answers(user_id: int, quiz_ids: list[UUID]) -> list[dict]:
+    user = _get_or_create_getcourse_user(user_id)
+
+    answers = Answer.objects.filter(
+        users__id__exact=user.id,
+        quiz_id__in=quiz_ids,
+    ).delete()
+
+    [answer.users.delete(user) for answer in answers]
+
+    return True

@@ -44,4 +44,6 @@ urlpatterns = [
          views.register_answer_view, name='register_answer'),
     path('get_answers',
          views.get_answers_view, name='get_answers'),
+    path('delete_answers',
+         views.delete_answers_view, name='delete_answers'),
 ]
