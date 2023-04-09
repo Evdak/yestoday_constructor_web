@@ -379,8 +379,10 @@
     });
 
     $(document).ready(function () {
-        backdropInput();
-        backdropScroll();
+        window.setTimeout(function () {
+            backdropInput();
+            backdropScroll();
+        }, 1500);
     });
 
 
