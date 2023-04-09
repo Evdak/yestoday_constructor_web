@@ -323,10 +323,6 @@
     #field {
         background-color: rgba(0, 0, 0, 0);
     }
-
-    #backdrop {
-        border: none !important;
-    }
 </style>
 <script>
     window.onload = function () {
@@ -380,6 +376,11 @@
     })
     document.getElementById("field").addEventListener("mouseup", function () {
         backdropStyle();
+    });
+
+    $(document).ready(function () {
+        backdropInput();
+        backdropScroll();
     });
 
 
