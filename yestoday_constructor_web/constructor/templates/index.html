@@ -276,7 +276,9 @@
         <h3 class="currentQuiz" quiz=""></h3>
     </div>
     <div class="row my-3">
-        <textarea name="" id="" cols="30" rows="10" class="quizInput"></textarea>
+        <div id="backdrop"></div>
+        <textarea name="" id='field' oninput="backdropInput()" onscroll="backdropScroll()" cols="30" rows="10"
+            class="quizInput"></textarea>
     </div>
     <div class="row px-5">
         <button type="button" class="btn btn-primary btn-lg btn-block" onclick="addQuiz()">Добавить</button>
@@ -325,6 +327,51 @@
             document.body.classList.remove('loaded_hiding');
         }, 500);
     }
+
+    backdropInput()
+    backdropScroll()
+
+    function backdropInput() {
+        backdropStyle();
+        backdrop.innerHTML = "";
+        let colors = ['#FFF', '#DDD'];
+        let i = 0
+        for (section of field.value.split("\n")) {
+            backdrop.innerHTML += "<span style='background-color: " + colors[i] + "'>" + section + "</span><br>"
+            i < colors.length - 1 ? i++ : i = 0
+        }
+    }
+
+    function backdropScroll() {
+        backdrop.scrollTop = field.scrollTop;
+    }
+
+    function backdropStyle() {
+        let css = window.getComputedStyle(field);
+        let cssstring = "";
+        for (let i = 0; i < css.length; i++) {
+            cssstring += (css[i] + ': ' + css.getPropertyValue(css[i]) + ";");
+        }
+        backdrop.style = cssstring;
+        backdrop.style.position = 'absolute';
+        backdrop.style.zIndex = '-1'
+        backdrop.style.overflow = 'hidden';
+        backdrop.style.backgroundColor = '#fff';
+        backdrop.style.fontColor = '#f00';
+        backdrop.style.resize = 'none';
+    }
+
+    //=================================================================================
+    //=================================================================================
+
+    //textarea resize
+
+    document.getElementById("field").addEventListener("mousedown", function () {
+        backdrop.style.display = 'none'
+    })
+    document.getElementById("field").addEventListener("mouseup", function () {
+        backdropStyle();
+    });
 </script>
 
 <script>
