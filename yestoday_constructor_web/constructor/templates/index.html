@@ -332,52 +332,52 @@
             document.body.classList.remove('loaded_hiding');
         }, 500);
     }
-    $(document).ready(function () {
-        backdropInput()
-        backdropScroll()
 
-        function backdropInput() {
-            backdropStyle();
-            backdrop.innerHTML = "";
-            let colors = ['#FFF', '#DDD'];
-            let i = 0
-            for (section of field.value.split("\n")) {
-                backdrop.innerHTML += "<span style='background-color: " + colors[i] + "'>" + section + "</span><br>"
-                i < colors.length - 1 ? i++ : i = 0
-            }
+    backdropInput()
+    backdropScroll()
+
+    function backdropInput() {
+        backdropStyle();
+        backdrop.innerHTML = "";
+        let colors = ['#FFF', '#DDD'];
+        let i = 0
+        for (section of field.value.split("\n")) {
+            backdrop.innerHTML += "<span style='background-color: " + colors[i] + "'>" + section + "</span><br>"
+            i < colors.length - 1 ? i++ : i = 0
         }
+    }
 
-        function backdropScroll() {
-            backdrop.scrollTop = field.scrollTop;
+    function backdropScroll() {
+        backdrop.scrollTop = field.scrollTop;
+    }
+
+    function backdropStyle() {
+        let css = window.getComputedStyle(field);
+        let cssstring = "";
+        for (let i = 0; i < css.length; i++) {
+            cssstring += (css[i] + ': ' + css.getPropertyValue(css[i]) + ";");
         }
+        backdrop.style = cssstring;
+        backdrop.style.position = 'absolute';
+        backdrop.style.zIndex = '-1'
+        backdrop.style.overflow = 'hidden';
+        backdrop.style.backgroundColor = '#fff';
+        backdrop.style.fontColor = '#f00';
+        backdrop.style.resize = 'none';
+    }
 
-        function backdropStyle() {
-            let css = window.getComputedStyle(field);
-            let cssstring = "";
-            for (let i = 0; i < css.length; i++) {
-                cssstring += (css[i] + ': ' + css.getPropertyValue(css[i]) + ";");
-            }
-            backdrop.style = cssstring;
-            backdrop.style.position = 'absolute';
-            backdrop.style.zIndex = '-1'
-            backdrop.style.overflow = 'hidden';
-            backdrop.style.backgroundColor = '#fff';
-            backdrop.style.fontColor = '#f00';
-            backdrop.style.resize = 'none';
-        }
+    //=================================================================================
+    //=================================================================================
 
-        //=================================================================================
-        //=================================================================================
+    //textarea resize
 
-        //textarea resize
-
-        document.getElementById("field").addEventListener("mousedown", function () {
-            backdrop.style.display = 'none'
-        })
-        document.getElementById("field").addEventListener("mouseup", function () {
-            backdropStyle();
-        });
+    document.getElementById("field").addEventListener("mousedown", function () {
+        backdrop.style.display = 'none'
+    })
+    document.getElementById("field").addEventListener("mouseup", function () {
+        backdropStyle();
     });
+
 
 
 </script>
