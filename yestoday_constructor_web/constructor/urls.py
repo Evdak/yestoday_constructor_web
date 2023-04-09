@@ -44,6 +44,8 @@ urlpatterns = [
          views.quiztable, name='quiztable'),
     path('audioQuiz5',
          views.audioQuiz5, name='audioQuiz5'),
+    path('textAudio',
+         views.textAudio, name='textAudio'),
     path('start',
          views.start_view, name='start_view'),
     path('nextslide',

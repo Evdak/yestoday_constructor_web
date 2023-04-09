@@ -1,4 +1,6 @@
 import random
+import re
+from typing import List
 import uuid
 import requests
 from getcourse.models import Audio
@@ -2377,7 +2379,10 @@ def pr_quiz8(s, galery_number, global_i, global_i_i):
         if el:
             while "..." in el:
                 el = el.replace(
-                    "...", f'<input type="text" class="input" id="input{cnt}" quiz-uuid="{str(uuid.uuid4())}" oninput="getInputQuiz8(this)" onchange="checkAnswerQuiz8(this)" trueanswer="', 1)
+                    "...",
+                    f'<input type="text" class="input" id="input{cnt}" quiz-uuid="{str(uuid.uuid4())}" oninput="getInputQuiz8(this)" onchange="checkAnswerQuiz8(this)" trueanswer="',
+                    1
+                )
                 el = el.replace(
                     "...", f'"><div class="input-buffer" id="input{cnt}-buffer"></div>', 1)
                 cnt += 1
@@ -2508,6 +2513,38 @@ def pr_quiz9(s, galery_number, global_i, global_i_i):
     </div>
     """
 
+    result_all += result
+    global_i_i += 1
+    return {"s": result_all, "galery_number": galery_number, "global_i": global_i, "global_i_i": global_i_i}
+
+
+def pr_textAudio(s, galery_number, global_i, global_i_i):
+    result_all = """"""
+    i = str(galery_number)+'_'+str(global_i)+'_'+str(global_i_i)
+
+    result = """"""
+    result += f"""
+    <div class="text-audio-div-wrapper">
+    """
+    s: List[str] = s.split('\n')
+    for el in s:
+        if el.strip() == '':
+            result += '<br>\n'
+        else:
+            url = re.search(r'<<.*>>', el).group(0)[2:-2]
+            text = re.search(r'.*<<', el).group(0)[:-2].strip()
+            result += f"""
+             <audio class='audio-player' id='audio-player' src="{url}"
+                onended="textAudioOnEnded(this)" oncanplay="textAudioOnCanPlay(this)" onplay="textAudioPlay(this)"
+                onpause="textAudioPause(this)">
+            </audio>
+            <span class="text">
+                <span class="podcast-title">{text}</span>
+                <i class="play bi bi-play-circle-fill" id="play" onclick="textAudioPlayPauseClick(this)"></i>
+                <i class="pause bi bi-pause-circle-fill" id="pause" onclick="textAudioPlayPauseClick(this)"></i>
+            </span>
+            """
+    result += "</div>"
     result_all += result
     global_i_i += 1
     return {"s": result_all, "galery_number": galery_number, "global_i": global_i, "global_i_i": global_i_i}

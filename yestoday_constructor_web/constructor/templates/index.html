@@ -221,6 +221,11 @@
                     <img src="{% static 'constructor/translateNew.png' %}" class="p-2 w100" alt=""
                         onclick="changeQuiz('translateNew')">
                 </div>
+
+                <div class="col">
+                    <img src="{% static 'constructor/textAudio.png' %}" class="p-2 w100" alt=""
+                        onclick="changeQuiz('textAudio')">
+                </div>
             </div>
         </div>
         <div class="col-3">
@@ -394,6 +399,10 @@
         audioQuiz5: {
             name: "Аудиопрактика (ТТС + Квиз 5)",
             placeholder: "Текст сверху\nТекст снизу\nТекст для озвучки\n0 (убрать шкалу времени) 1 (оставить)\nПросто текст через пробел (правильный для проверки)\n1 - Показывать слова, 0 - Нет"
+        },
+        textAudio: {
+            name: "Текст с аудио",
+            placeholder: "Текст <<ссылка на аудио>>\nТекст <<ссылка на аудио>>\n"
         }
     }
 
@@ -467,8 +476,6 @@
         var quizInput = document.querySelector(".quizInput").value;
         var ul = document.querySelector(".quizList");
         var li = document.createElement("li");
-        li.appendChild(document.createTextNode(document.querySelector(".currentQuiz").value + `(${quizInput.split('\n').join(' ').slice(0, 50)}...)`));
-        ul.appendChild(li);
         // quizInput = quizInput.replaceAll('\n', '|||');
         var url = `/${quizName}`;
         document.body.classList.remove('loaded');
@@ -484,6 +491,8 @@
                 global_i_i = result.global_i_i;
                 result_all = result_all + result.s;
                 document.querySelector(".quizOut").value = result_all;
+                li.appendChild(document.createTextNode(document.querySelector(".currentQuiz").textContent + `(${quizInput.split('\n').join(' ').slice(0, 50)}...)`));
+                ul.appendChild(li);
             })
             .fail(function (result) {
                 alert('Произошла ошибка')
