@@ -2533,11 +2533,14 @@ def pr_textAudio(s, galery_number, global_i, global_i_i):
         else:
             url = re.search(r'<<.*>>', el).group(0)[2:-2]
             text = re.search(r'.*<<', el).group(0)[:-2].strip()
-            result += f"""
+            if url:
+                result += f"""
              <audio class='audio-player' id='audio-player' src="{url}"
                 onended="textAudioOnEnded(this)" oncanplay="textAudioOnCanPlay(this)" onplay="textAudioPlay(this)"
                 onpause="textAudioPause(this)">
             </audio>
+            """
+            result += f"""
             <span class="text">
                 <span class="podcast-title">{text}</span>
                 <i class="play bi bi-play-circle-fill" id="play" onclick="textAudioPlayPauseClick(this)"></i>
