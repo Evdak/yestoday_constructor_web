@@ -2613,7 +2613,7 @@ def pr_dropdownQuiz(s, galery_number, global_i, global_i_i):
         else:
             el = re.sub(r"(?<!<<)[\w\s.,!?-]+(?![^<>]*>>)", repl1, el)
             el = re.sub(r"<<.*>>", repl, el)
-            result += s
+            result += el
 
     result += "</div>"
     result_all += result
