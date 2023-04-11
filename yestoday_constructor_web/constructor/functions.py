@@ -2553,6 +2553,74 @@ def pr_textAudio(s, galery_number, global_i, global_i_i):
     return {"s": result_all, "galery_number": galery_number, "global_i": global_i, "global_i_i": global_i_i}
 
 
+def pr_dropdownQuiz(s, galery_number, global_i, global_i_i):
+    result_all = """"""
+    i = str(galery_number)+'_'+str(global_i)+'_'+str(global_i_i)
+
+    result = """"""
+    result += f"""
+        <div>
+    """
+
+    def repl1(match):
+        match = match.group(0)
+        return f"""
+            <span>{match}</span>
+        """
+
+    def repl(match):
+        match = match.group(0)[2:-2]
+        match = match.split(';')
+        print(f"{len(match)=}")
+        if len(match) == 1:
+
+            return f"""<div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            ___
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                            quiz-uuid="{uuid.uuid4()}">
+                            <input type="text" trueanswer="{match[0]}">
+                            <button class="btn" onclick="setAnswerDropwownInput(this)">✓</button>
+                        </div>
+                    </div>
+                    """
+        else:
+            btns = [
+                f"""<button type="button" class="dropdown-item" {"true" if i == 0 else ""} onclick="setAnswerDropwown(this)">{el}</button>"""
+                for i, el in enumerate(match)
+            ]
+
+            random.shuffle(btns)
+            btns = '\n'.join(btns)
+            return f"""<div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            ___
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton"
+                            quiz-uuid="{uuid.uuid4()}">
+                            {btns}
+                        </div>
+                    </div>
+                    """
+
+    s: List[str] = s.split('\n')
+    for el in s:
+        if el.strip() == '':
+            result += '<br>\n'
+        else:
+            el = re.sub(r"(?<!<<)[\w\s.,!?-]+(?![^<>]*>>)", repl1, el)
+            el = re.sub(r"<<.*>>", repl, el)
+            result += s
+
+    result += "</div>"
+    result_all += result
+    global_i_i += 1
+    return {"s": result_all, "galery_number": galery_number, "global_i": global_i, "global_i_i": global_i_i}
+
+
 def nextslide(galery_number, global_i, global_i_i):
     result_all = """"""
     global_i += 1

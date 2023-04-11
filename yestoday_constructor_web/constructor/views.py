@@ -284,6 +284,16 @@ def textAudio(request: HttpRequest):
     return JsonResponse(result)
 
 
+def dropdownQuiz(request: HttpRequest):
+    s = request.GET.get('s').replace("‘", "'").replace("’", "'")
+    galery_number = int(request.GET.get('galery_number'))
+    global_i = int(request.GET.get('global_i'))
+    global_i_i = int(request.GET.get('global_i_i'))
+
+    result = pr_dropdownQuiz(s, galery_number, global_i, global_i_i)
+    return JsonResponse(result)
+
+
 def start_view(request: HttpRequest):  # , galery_number, global_i, global_i_i
     galery_number = int(request.GET.get('galery_number'))
     global_i = int(request.GET.get('global_i'))
