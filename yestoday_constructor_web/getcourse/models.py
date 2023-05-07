@@ -114,7 +114,10 @@ class GetCourseTeacher(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Логин пользователя"
     )
-    accountUserId = models.BigIntegerField('ID с GetCourse')
+    accountUserId = models.BigIntegerField(
+        'ID с GetCourse',
+        unique=True,
+    )
 
     available_lessons = models.ManyToManyField(
         Lesson,
@@ -140,7 +143,10 @@ class GetCourseTeacher(models.Model):
 
 
 class GetCourseUser(models.Model):
-    accountUserId = models.BigIntegerField('ID с GetCourse')
+    accountUserId = models.BigIntegerField(
+        'ID с GetCourse',
+        unique=True,
+    )
     audios = models.ManyToManyField(
         Audio,
         verbose_name='Аудио'
