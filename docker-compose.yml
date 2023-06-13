@@ -16,7 +16,7 @@ services:
       - ./yestoday_constructor_web/media:/srv/www/yestoday_constructor_web/media
       - ./yestoday_constructor_web/logs:/srv/www/yestoday_constructor_web/logs
       - ./docker/nginx:/etc/nginx/conf.d
-      - /etc/ssl/:/etc/ssl
+      # - /etc/ssl/:/etc/ssl
     depends_on:
       - python
 
@@ -33,7 +33,7 @@ services:
       - 8000:8000
     env_file:
       - .env
-    command: "gunicorn --log-level DEBUG -c gunicorn.py yestoday_constructor_web.wsgi"
+    command: "gunicorn --log-level DEBUG --limit_request_line 8190 -c gunicorn.py yestoday_constructor_web.wsgi"
 
   postgres:
     image: postgres:15
