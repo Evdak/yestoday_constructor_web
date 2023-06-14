@@ -10,6 +10,7 @@ bind = '0.0.0.0:' + environ.get('PORT', '8000')
 max_requests = 1000
 worker_class = 'gevent'
 workers = max_workers()
+limit_request_line = 8190
 
 env = {
     'DJANGO_SETTINGS_MODULE': 'yestoday_constructor_web.settings'

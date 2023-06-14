@@ -33,7 +33,7 @@ services:
       - 8000:8000
     env_file:
       - .env
-    command: "gunicorn --log-level DEBUG --limit_request_line 8190 -c gunicorn.py yestoday_constructor_web.wsgi"
+    command: "gunicorn --log-level DEBUG -c gunicorn.py yestoday_constructor_web.wsgi"
 
   postgres:
     image: postgres:15
