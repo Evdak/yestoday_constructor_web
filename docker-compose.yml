@@ -16,7 +16,7 @@ services:
       - ./yestoday_constructor_web/media:/srv/www/yestoday_constructor_web/media
       - ./yestoday_constructor_web/logs:/srv/www/yestoday_constructor_web/logs
       - ./docker/nginx:/etc/nginx/conf.d
-      # - /etc/ssl/:/etc/ssl
+      - /etc/ssl/:/etc/ssl
     depends_on:
       - python
 
