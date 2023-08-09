@@ -2505,7 +2505,7 @@ def pr_quiz9(s, galery_number, global_i, global_i_i):
                 el = el.rstrip("*")
 
             el = el.strip()
-            result += f"""<li><button onclick="checkQuiz9(this)" {f'descr="{descr}"' if true else ""} {true}>{el}</button></li>"""
+            result += f"""<li><button onclick="checkQuiz9(this)" {f'descr="{descr}"' if not true and descr else ""} {true}>{el}</button></li>"""
             result += "\n"
 
     result += '\n</ul>'
