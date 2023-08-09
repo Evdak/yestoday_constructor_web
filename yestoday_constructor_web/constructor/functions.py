@@ -2488,6 +2488,7 @@ def pr_quiz9(s, galery_number, global_i, global_i_i):
     import requests
     words = s.split('\n')
     quizType = words.pop(0).strip()
+    descr = words.pop(0).strip()
     result = """"""
     result += f"""
     <div class="type{quizType} quiz-wrapper{i}" id="quiz9-wrapper" quiz-uuid="{str(uuid.uuid4())}">
@@ -2504,7 +2505,7 @@ def pr_quiz9(s, galery_number, global_i, global_i_i):
                 el = el.rstrip("*")
 
             el = el.strip()
-            result += f"""<li><button onclick="checkQuiz9(this)" {true}>{el}</button></li>"""
+            result += f"""<li><button onclick="checkQuiz9(this)" {f'descr="{descr}"' if true else ""} {true}>{el}</button></li>"""
             result += "\n"
 
     result += '\n</ul>'
