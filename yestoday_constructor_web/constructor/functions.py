@@ -1109,7 +1109,7 @@ def pr_translate_new(s, galery_number, global_i, global_i_i):
     answers = '\n'.join(answers)
 
     i = str(galery_number)+'_'+str(global_i)+'_'+str(global_i_i)
-    result = f"""<div class="quiz-newtranslate-wrapper{i}" id="quiz-newtranslate-wrapper">
+    result = f"""<div class="quiz-newtranslate-wrapper{i}" id="quiz-newtranslate-wrapper" quiz-uuid="{str(uuid.uuid4())}">
         <h1 class="goal">
             {s[0].strip()}
         </h1>
