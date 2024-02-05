@@ -622,7 +622,7 @@ def pr_quiz5(s, galery_number, global_i, global_i_i):
     s = f"""
         <div id='quiz-wrapper-quiz5' quiz-uuid="{str(uuid.uuid4())}">
             <div class="textbck" id='textbck'>
-                <p class="task" id='task' answer='{ans}' tries="0">{ansshstr}</p>
+                <p class="task" id='task' answer="{ans}" tries="0">{ansshstr}</p>
                 <div class="text__but" id='text__but'>
                     <div class="textareadiv" id='textareadiv'>
                         <textarea class="textarea" id='textarea'
