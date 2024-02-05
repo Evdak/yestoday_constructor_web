@@ -16,6 +16,7 @@ SALEBOT_API_KEY = env.str('SALEBOT_API_KEY', '123')
 
 DEBUG = env.bool('DEBUG', True)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+VOICE_API_KEY = env.str('VOICE_API_KEY')
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_ORIGINS = True

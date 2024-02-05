@@ -1146,7 +1146,7 @@ def pr_audio_tts(s, galery_number, global_i, global_i_i):
     textdown = s[1].strip()
     url = s[2].strip()
     words = url.split()
-    url = 'https://api.voicerss.org/?key=602e84f5eaf14cfc8a980c3c1a661083&hl=en-us&v=Mike&с=mp3&f=16khz_16bit_mono&src='
+    url = f'https://api.voicerss.org/?key={VOICE_API_KEY}&hl=en-us&v=Mike&с=mp3&f=16khz_16bit_mono&src='
     for w in words:
         url += w + '%20'
     # url = requests.get(url).text
@@ -1287,7 +1287,7 @@ def pr_quiz6(s, galery_number, global_i, global_i_i):
         </div>
         <div class="translatediv{i}" id='translatediv' style="display:none">
     """
-    url = 'https://api.voicerss.org/?key=602e84f5eaf14cfc8a980c3c1a661083&hl=en-us&v=Mike&с=mp3&f=32khz_16bit_stereo&b64=true&src='
+    url = f'https://api.voicerss.org/?key={VOICE_API_KEY}&hl=en-us&v=Mike&с=mp3&f=32khz_16bit_stereo&b64=true&src='
     url += word
     url = requests.get(url).text
     result += f"""
@@ -2127,7 +2127,7 @@ def pr_stt(s, galery_number, global_i, global_i_i):
 #     s = s.split('\n')
 #     url = s[1]
 #     words = url.split()
-#     url = 'https://api.voicerss.org/?key=602e84f5eaf14cfc8a980c3c1a661083&hl=en-us&v=Mike&с=mp3&f=32khz_16bit_stereo&b64=true&src='
+#     url = f'https://api.voicerss.org/?key={VOICE_API_KEY}&hl=en-us&v=Mike&с=mp3&f=32khz_16bit_stereo&b64=true&src='
 #     for w in words:
 #         url += w + '%20'
 #     url = requests.get(url).text
