@@ -4,7 +4,7 @@ from typing import List
 import uuid
 import requests
 from getcourse.models import Audio
-from yestoday_constructor_web.settings import ALLOWED_HOSTS
+from yestoday_constructor_web.settings import ALLOWED_HOSTS, VOICE_API_KEY
 
 
 def srez_v2(str, start, end):
