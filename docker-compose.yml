@@ -16,7 +16,8 @@ services:
       - ./yestoday_constructor_web/media:/srv/www/yestoday_constructor_web/media
       - ./yestoday_constructor_web/logs:/srv/www/yestoday_constructor_web/logs
       - ./docker/nginx:/etc/nginx/conf.d
-      - /etc/letsencrypt/live/constystd.ru:/etc/ssl
+      - /etc/letsencrypt/live/constystd.ru/fullchain.pem:/etc/letsencrypt/live/constystd.ru/fullchain.pem
+      - /etc/letsencrypt/live/constystd.ru/privkey.pem:/etc/letsencrypt/live/constystd.ru/privkey.pem
     depends_on:
       - python
 
