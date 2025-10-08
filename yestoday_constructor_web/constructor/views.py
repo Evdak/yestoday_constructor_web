@@ -183,6 +183,33 @@ def audio_tts(request: HttpRequest):
     return JsonResponse(result_all)
 
 
+def audio_tts_cn(request: HttpRequest):
+    s = request.GET.get('s').replace("‘", "'").replace("’", "'")
+    galery_number = int(request.GET.get('galery_number'))
+    global_i = int(request.GET.get('global_i'))
+    global_i_i = int(request.GET.get('global_i_i'))
+
+    s = s.split('\n')
+    result_all = {"s": """""", "galery_number": galery_number,
+                  "global_i": global_i, "global_i_i": global_i_i}
+    while len(s) >= 4:
+        result = pr_audio_tts(
+            "\n".join(s[:4]),
+            result_all['galery_number'],
+            result_all["global_i"],
+            result_all["global_i_i"],
+            lang="zh-cn",
+            voice="Wang"
+        )
+        result_all['s'] += result['s']
+        result_all['galery_number'] = result['galery_number']
+        result_all['global_i'] = result['global_i']
+        result_all['global_i_i'] = result['global_i_i']
+        for _ in range(4):
+            s.pop(0)
+    return JsonResponse(result_all)
+
+
 def video(request: HttpRequest):  # , s: str, galery_number: str, global_i: str, global_i_i: str
     s = request.GET.get('s').replace("‘", "'").replace("’", "'")
     galery_number = int(request.GET.get('galery_number'))

@@ -1137,7 +1137,7 @@ def pr_translate_new(s, galery_number, global_i, global_i_i):
     return {"s": result_all, "galery_number": galery_number, "global_i": global_i, "global_i_i": global_i_i}
 
 
-def pr_audio_tts(s, galery_number, global_i, global_i_i):
+def pr_audio_tts(s, galery_number, global_i, global_i_i, lang: str = "en-us", voice: str = "Mike"):
     result_all = """"""
 
     i = str(galery_number)+'_'+str(global_i)+'_'+str(global_i_i)
@@ -1146,7 +1146,7 @@ def pr_audio_tts(s, galery_number, global_i, global_i_i):
     textdown = s[1].strip()
     url = s[2].strip()
     words = url.split()
-    url = f'https://api.voicerss.org/?key={VOICE_API_KEY}&hl=en-us&v=Mike&с=mp3&f=16khz_16bit_mono&src='
+    url = f'https://api.voicerss.org/?key={VOICE_API_KEY}&hl={lang}&v={voice}&с=mp3&f=16khz_16bit_mono&src='
     for w in words:
         url += w + '%20'
     # url = requests.get(url).text
